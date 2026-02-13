@@ -1,0 +1,75 @@
+import type { Request, Response, NextFunction } from "express";
+import SessionService from "../services/SessionService";
+import { AppError } from "../errors/AppError";
+
+const sessionService = new SessionService();
+
+class SessionController {
+  async index(req: Request, res: Response) {
+    return res.status(200).json({
+      path: "/session",
+      message: "Rota principal para session",
+    });
+  }
+
+  async loginSection(req: Request, res: Response, next: NextFunction) {
+    const { name, code } = req.body as { name: string; code: string };
+
+    if(!name) throw new AppError('Nome da sessão não informado.', 400)
+    if(!code) throw new AppError('Código de acesso da sessão não informado.', 400)
+    
+    try {
+      const session = await sessionService.login(name, code)
+    } catch (error) {
+      next(error)
+    }
+    
+  }
+
+  async getSession(req: Request, res: Response, next: NextFunction) {
+    const { sessionId } = req.params as { sessionId: string };
+
+    if (!sessionId) throw new AppError("Código da sessão não informado");
+
+    try {
+      const session = await sessionService.getById(sessionId);
+
+      return res.status(200).json(session);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createSession(req: Request, res: Response, next: NextFunction) {
+    const { name } = req.body;
+
+    if (!name) throw new AppError("Nome da sessão não informado", 400);
+
+    try {
+      const session = await sessionService.create(name);
+
+      return res.status(200).json(session);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteSection(req: Request, res: Response, next: NextFunction) {
+    const { sessionId } = req.params as { sessionId: string };
+
+    if (!sessionId)
+      throw new AppError("Código da sessão a ser excluída não informado");
+
+    try {
+      const session = await sessionService.deleteById(sessionId);
+
+      res
+        .status(200)
+        .json({ status: "Ok", message: "Sessão deletada com sucesso." });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export default SessionController;

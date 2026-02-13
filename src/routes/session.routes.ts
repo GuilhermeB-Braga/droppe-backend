@@ -1,0 +1,13 @@
+import express from 'express'
+import SessionController from '../controller/SessionController.js'
+
+const sessionController = new SessionController()
+
+const router = express.Router()
+
+router.get('/', sessionController.index) //rota principal
+router.post('/', sessionController.createSession) //criar sessão
+router.get('/:sessionId', sessionController.getSession) //dados da sessão
+router.delete('/:sessionId', sessionController.deleteSection) //deletar sessão
+
+export default router
