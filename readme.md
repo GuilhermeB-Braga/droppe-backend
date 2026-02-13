@@ -1,6 +1,6 @@
 ![Droppe Banner Logo](./assets/droppe-banner.png "Banner Droppe")
 
-API para **upload, download e gerênciamento de arquivos**, permitindo a **transfêrencia segura** entre cliente e servidor. Arquivos **salvos de forma temporária** em nossa base de dados.
+API para **upload, download e gerenciamento de arquivos**, permitindo a **transferência segura** entre cliente e servidor. Arquivos **salvos de forma temporária** em nossa base de dados.
 
 ## Visão Geral
 
