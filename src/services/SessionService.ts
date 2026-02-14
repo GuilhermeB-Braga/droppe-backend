@@ -24,10 +24,9 @@ class SessionService {
       },
     });
 
-    if(!session) throw new AppError('Sessão não encontrada', 404)
-    
-    return session.id
-      
+    if (!session) throw new AppError("Sessão não encontrada", 404);
+
+    return session.id;
   }
 
   async getById(id: string) {
@@ -51,6 +50,12 @@ class SessionService {
     if (!session) throw new AppError("Sessão não encontrada", 400);
 
     return session;
+  }
+
+  async deleteManySessions(ids: string[]) {
+    await prisma.session.deleteMany({
+      where: { id: { in: ids } },
+    });
   }
 }
 

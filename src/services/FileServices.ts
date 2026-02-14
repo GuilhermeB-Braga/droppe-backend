@@ -1,6 +1,21 @@
 import { prisma } from "../lib/prisma";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { AppError } from "../errors/AppError";
+
+interface File {
+  originalName: string;
+  savedName: string;
+  sessionId: string;
+  fileSize: number;
+  key?: string;
+  path?: string;
+}
 
 export default class FileService {
   private s3: S3Client;
@@ -25,47 +40,62 @@ export default class FileService {
       region: process.env.AWS_REGION!,
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ID!,
       },
     });
   }
 
-  async uploadFiles(
-    sessionId: string,
-    files: File[],
-  ) {
-    const results = await Promise.all(
-      files.map(async (file) => {
-        const uniqueName = `${file.name}_${Date.now()}`;
-        const fileKey = `${sessionId}/${uniqueName}`;
+  async presignedUrl(file: File, fileType: string) {
+    const uniqueName = `${Date.now()}_${file.originalName}`;
+    const fileKey = `${file.sessionId}/${uniqueName}`;
 
-        const command = new PutObjectCommand({
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: fileKey,
-          ContentType: file.type,
-        });
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileKey,
+      ContentType: fileType,
+    });
 
-        const signedUrl = await getSignedUrl(this.s3, command, {
-          expiresIn: 300,
-        });
+    const s3Url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
 
-        const s3Url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
+    await prisma.file.create({
+      data: {
+        ...file,
+        savedName: uniqueName,
+        key: fileKey,
+        path: s3Url,
+      },
+    });
 
-        const fileRecord = await prisma.file.create({
-          data: {
-            originalName: file.name,
-            savedName: uniqueName,
-            fileSize: file.size,
-            path: s3Url,
-            key: fileKey,
-            sessionId: sessionId,
-          },
-        });
+    const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 60 });
 
-        return { fileRecord, signedUrl };
-      }),
-    );
+    return uploadUrl;
+  }
 
-    return { fileRecords: results };
+  async downloadUrl(fileId: string) {
+    const file: File | null = await prisma.file.findUnique({
+      where: {
+        id: fileId,
+      },
+    });
+
+    if (!file) throw new AppError("Arquivo para download não encontrado.");
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: file?.key,
+      ResponseContentDisposition: `attachment; filename="${encodeURIComponent(file.originalName)}"`,
+    });
+
+    return await getSignedUrl(this.s3, command, { expiresIn: 900 });
+  }
+
+  async removeFile(key: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+    });
+
+    await this.s3.send(command);
+    console.log(`Arquivo ${key} deletado com sucesso!`);
   }
 }

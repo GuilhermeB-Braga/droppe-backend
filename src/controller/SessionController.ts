@@ -15,15 +15,16 @@ class SessionController {
   async loginSection(req: Request, res: Response, next: NextFunction) {
     const { name, code } = req.body as { name: string; code: string };
 
-    if(!name) throw new AppError('Nome da sessão não informado.', 400)
-    if(!code) throw new AppError('Código de acesso da sessão não informado.', 400)
-    
+    if (!name) throw new AppError("Nome da sessão não informado.", 400);
+    if (!code)
+      throw new AppError("Código de acesso da sessão não informado.", 400);
+
     try {
-      const session = await sessionService.login(name, code)
+      const sessionId = await sessionService.login(name, code);
+      return res.status(200).json(sessionId);
     } catch (error) {
-      next(error)
+      next(error);
     }
-    
   }
 
   async getSession(req: Request, res: Response, next: NextFunction) {

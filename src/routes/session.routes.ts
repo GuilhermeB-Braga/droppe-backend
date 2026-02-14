@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.get('/', sessionController.index) //rota principal
 router.post('/', sessionController.createSession) //criar sessão
+router.post('/login', sessionController.loginSection) //criar sessão
 router.get('/:sessionId', sessionController.getSession) //dados da sessão
 router.delete('/:sessionId', sessionController.deleteSection) //deletar sessão
 

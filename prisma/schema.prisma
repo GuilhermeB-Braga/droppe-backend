@@ -6,11 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id")
   name      String
   code      String   @unique
   createdAt DateTime @default(now())
@@ -20,7 +21,7 @@ model Session {
 }
 
 model File {
-  id           String   @id @default(uuid())
+  id           String   @id @default(uuid()) @map("_id")
   originalName String
   savedName    String
   fileSize     Int
