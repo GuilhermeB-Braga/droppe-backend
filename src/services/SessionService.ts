@@ -1,9 +1,10 @@
 import { AppError } from "../errors/AppError.js";
+import checkExpiresDocs from "../jobs/checkExpiresDocs.js";
 import { prisma } from "../lib/prisma.js";
 import generateQrCodeBuffer from "../lib/qrCodeGenerator.js";
 import generateAccessCode from "../lib/utils/generateAccessCode.js";
 
-class SessionService {
+export default class SessionService {
   async create(name: string) {
     const session = await prisma.session.create({
       data: {
@@ -64,6 +65,9 @@ class SessionService {
 
     return buffer;
   }
-}
 
-export default SessionService;
+  async deleteExpiredSessions() {
+    const deletedCount = await checkExpiresDocs();
+    return deletedCount;
+  }
+}
