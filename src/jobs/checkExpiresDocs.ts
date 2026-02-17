@@ -2,10 +2,9 @@ import { prisma } from "../lib/prisma.js";
 import FileService from "../services/FileServices.js";
 import SessionService from "../services/SessionService.js";
 
-const fileService = new FileService();
-const sessionService = new SessionService()
-
 export default async function checkExpiresDocs() {
+  const fileService = new FileService();
+  const sessionService = new SessionService();
   const now = new Date();
   const threshold = new Date(now.getTime() - 900000);
 
@@ -26,13 +25,18 @@ export default async function checkExpiresDocs() {
 
   const sessionIds = expiresSessions.map((s) => s.id);
 
-  
   try {
-    
-    await sessionService.deleteManySessions(sessionIds)
+    await sessionService.deleteManySessions(sessionIds);
 
-    console.log(`${sessionIds.length} sessões e seus respectivos arquivos removidos.`)
+    console.log(
+      `${sessionIds.length} sessões e seus respectivos arquivos removidos.`,
+    );
+
+    return sessionIds.length;
   } catch (error) {
-    console.error('Houve uma falha ao remover as sessões no banco. Error: ', error)
+    console.error(
+      "Houve uma falha ao remover as sessões no banco. Error: ",
+      error,
+    );
   }
 }
