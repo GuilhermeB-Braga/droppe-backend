@@ -71,6 +71,34 @@ class SessionController {
       next(error);
     }
   }
+
+  async getSessionQrCode(req: Request, res: Response, next: NextFunction){
+
+    const session = req.query.session as string
+
+    if(!session) throw new AppError('Código da sessão não informado', 400)
+    
+    try {
+
+      const text = `${process.env.CORS_ORIGIN_URL}/session/${session}`
+
+
+      const bufferImage = await sessionService.generateQrCode(text)
+
+      if(!bufferImage) throw new AppError('Não foi possível gerar o buffer da imagem', 422)
+      
+      res.writeHead(200, {
+        "content-type": 'image/png',
+        "content-length": bufferImage.length,
+        "cache-control": "public, max-age=60"
+      })
+
+      res.end(bufferImage)
+      
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 export default SessionController;

@@ -1,5 +1,6 @@
 import { AppError } from "../errors/AppError";
 import { prisma } from "../lib/prisma";
+import generateQrCodeBuffer from "../lib/qrCodeGenerator";
 import generateAccessCode from "../lib/utils/generateAccessCode";
 
 class SessionService {
@@ -56,6 +57,12 @@ class SessionService {
     await prisma.session.deleteMany({
       where: { id: { in: ids } },
     });
+  }
+
+  async generateQrCode(text: string) {
+    const buffer: Buffer | undefined = await generateQrCodeBuffer(text);
+
+    return buffer;
   }
 }
 
