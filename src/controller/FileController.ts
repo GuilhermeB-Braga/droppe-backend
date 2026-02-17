@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import FileService from "../services/FileServices";
-import { AppError } from "../errors/AppError";
-import { prisma } from "../lib/prisma";
+import FileService from "../services/FileServices.js";
+import { AppError } from "../errors/AppError.js";
 
 const fileService = new FileService();
 

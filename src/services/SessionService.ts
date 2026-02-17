@@ -1,7 +1,7 @@
-import { AppError } from "../errors/AppError";
-import { prisma } from "../lib/prisma";
-import generateQrCodeBuffer from "../lib/qrCodeGenerator";
-import generateAccessCode from "../lib/utils/generateAccessCode";
+import { AppError } from "../errors/AppError.js";
+import { prisma } from "../lib/prisma.js";
+import generateQrCodeBuffer from "../lib/qrCodeGenerator.js";
+import generateAccessCode from "../lib/utils/generateAccessCode.js";
 
 class SessionService {
   async create(name: string) {

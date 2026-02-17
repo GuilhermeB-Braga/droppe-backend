@@ -1,6 +1,6 @@
-import { prisma } from "../lib/prisma";
-import FileService from "../services/FileServices";
-import SessionService from "../services/SessionService";
+import { prisma } from "../lib/prisma.js";
+import FileService from "../services/FileServices.js";
+import SessionService from "../services/SessionService.js";
 
 const fileService = new FileService();
 const sessionService = new SessionService()

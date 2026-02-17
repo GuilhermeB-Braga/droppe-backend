@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import SessionService from "../services/SessionService";
-import { AppError } from "../errors/AppError";
+import SessionService from "../services/SessionService.js";
+import { AppError } from "../errors/AppError.js";
 
 const sessionService = new SessionService();
 
