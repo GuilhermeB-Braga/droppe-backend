@@ -1,4 +1,4 @@
-export async function runJob(name: string, fn: ()=> Promise<void>): Promise<void>{
+export async function runJob(name: string, fn: ()=> Promise<any>): Promise<void>{
     try {
         console.log(`Job iniciado: ${name}`)
         await fn()
